@@ -1,5 +1,9 @@
 @startuml UI控件类层次结构
 ' ==================== UI 控件 + 页面继承体系 ====================
+' 版本: 2025-06 — 反映最新源码结构
+'   - 新增 ExportPathDialog
+'   - 新增 createChart 工厂函数
+'   - Page 事件方法签名与源码一致
 
 skinparam classAttributeIconSize 0
 skinparam backgroundColor #FEFEFE
@@ -190,6 +194,35 @@ class ChartPage {
   + applyTheme(theme)
 }
 
+' ── ExportPathDialog（独立对话框，非 Widget 子类）──
+class ExportPathDialog <<standalone>> {
+  - int m_x, m_y, m_w, m_h
+  - tstring m_title
+  - tstring m_message
+  - tstring m_path
+  - ColorTheme m_theme
+  - COLORREF m_shadowColor
+  - COLORREF m_bgColor
+  - COLORREF m_textColor
+  - COLORREF m_accentColor
+  - TextInput m_input
+  - Button m_okButton
+  - Button m_cancelButton
+  - bool m_done
+  - bool m_accepted
+  ---
+  + ExportPathDialog(theme, title, message, placeholder, defaultPath)
+  + showModal() : bool
+  + getPath() : tstring
+  - applyTheme(theme)
+  - draw()
+}
+
+' ── 工厂函数（定义于 Pages.h）──
+class "createChart()\n(free function)" <<factory>> {
+  + (ChartType, title, data, theme) : unique_ptr<Chart>
+}
+
 ' ── Widget 继承树 ──
 Widget <|-- Button
 Widget <|-- Card
@@ -209,5 +242,7 @@ MainPage *-- TextInput
 ChartPage *-- Card
 ChartPage *-- Button
 PopupCard *-- Button : m_okBtn
+ExportPathDialog *-- TextInput : m_input
+ExportPathDialog *-- Button : m_okButton / m_cancelButton
 
 @enduml

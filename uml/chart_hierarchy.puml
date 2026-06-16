@@ -1,5 +1,9 @@
 @startuml 图表类层次结构
 ' ==================== 图表类继承体系 ====================
+' 版本: 2025-06 — 反映最新源码结构
+'   - PlotCoords 是 LineChart 的 protected 嵌套结构体
+'   - createChart 是 Pages.h 中的自由函数（非类）
+'   - darkenColor / lightenColor 是 Chart.h 中的内联函数
 
 skinparam classAttributeIconSize 0
 skinparam backgroundColor #FEFEFE
@@ -25,17 +29,7 @@ class ColorTheme <<struct>> {
   + COLORREF accentColor
 }
 
-class PlotCoords <<struct>> {
-  + vector<int> ptX
-  + vector<int> ptY
-  + int originX
-  + int originY
-  + int axisTopY
-  + int axisRightX
-  + int plotWidth
-  + int plotHeight
-}
-
+' ChartType 枚举（定义于 Pages.h）
 enum ChartType {
   CHART_BAR
   CHART_PIE
@@ -109,6 +103,18 @@ class LineChart {
   + applyTheme(theme)
 }
 
+' PlotCoords 是 LineChart 的 protected 嵌套结构体
+class PlotCoords <<(LineChart::) struct>> {
+  + vector<int> ptX
+  + vector<int> ptY
+  + int originX
+  + int originY
+  + int axisTopY
+  + int axisRightX
+  + int plotWidth
+  + int plotHeight
+}
+
 ' ── 面积图 ──
 class AreaChart {
   - COLORREF fillColor
@@ -127,6 +133,6 @@ LineChart <|-- AreaChart
 ' ── 组合关系 ──
 Chart *-- ChartItem : uses
 Chart ..> ColorTheme : applies
-LineChart +-- PlotCoords : computes
+LineChart +-- PlotCoords : nested struct
 
 @enduml
