@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include "Widget.h"
 #include "Button.h"
 #include "TextInput.h"
 #include "Card.h"
@@ -18,60 +19,57 @@ std::unique_ptr<Chart> createChart(
     const ColorTheme& theme
 );
 
-// ==================== Page 基类 —— 统一管理 Card / Button / TextInput ====================
+// ==================== Page 基类 —— 统一管理所有 Widget ====================
 class Page
 {
 protected:
-    std::vector<Card*>   m_cards;    // Card + TextInput + DisplayBox（TextInput 也是 Card）
-    std::vector<Button*> m_buttons;
+    std::vector<Widget*> m_widgets;   // Card / Button / TextInput / PopupCard …
 
 public:
     virtual ~Page() = default;
 
-    // 默认绘制：卡片 → 按钮
+    // ── 默认绘制 ──
     virtual void draw()
     {
-        for (auto* c : m_cards)   c->draw();
-        for (auto* b : m_buttons) b->draw();
+        for (auto* w : m_widgets) w->draw();
     }
 
-    // 默认事件分发
+    // ── 默认事件分发（通过 Widget 虚函数多态）──
     virtual bool handleMouseMove(int mx, int my)
     {
         bool changed = false;
-        for (auto* b : m_buttons) changed |= b->handleMouseMove(mx, my);
+        for (auto* w : m_widgets) changed |= w->handleMouseMove(mx, my);
         return changed;
     }
 
     virtual bool handleMouseDown(int mx, int my)
     {
         bool changed = false;
-        for (auto* b : m_buttons) changed |= b->handleMouseDown(mx, my);
-        for (auto* c : m_cards)   changed |= c->handleMouseDown(mx, my);  // TextInput 多态处理
+        for (auto* w : m_widgets) changed |= w->handleMouseDown(mx, my);
         return changed;
     }
 
     virtual bool handleMouseUp(int mx, int my)
     {
         bool changed = false;
-        for (auto* b : m_buttons) changed |= b->handleMouseUp(mx, my);
+        for (auto* w : m_widgets) changed |= w->handleMouseUp(mx, my);
         return changed;
     }
 
     virtual bool handleKeyDown(WPARAM vkcode)
     {
-        for (auto* c : m_cards)
+        for (auto* w : m_widgets)
         {
-            if (c->wantsKeyInput()) { c->handleKeyDown(vkcode); return true; }
+            if (w->wantsKeyInput()) { w->handleKeyDown(vkcode); return true; }
         }
         return false;
     }
 
     virtual bool handleChar(WPARAM ch)
     {
-        for (auto* c : m_cards)
+        for (auto* w : m_widgets)
         {
-            if (c->wantsCharInput()) { c->handleChar(ch); return true; }
+            if (w->wantsCharInput()) { w->handleChar(ch); return true; }
         }
         return false;
     }
@@ -93,7 +91,7 @@ public:
         Callback onThemeSwitch
     );
 
-    void draw() override;  // 自定义（窗口背景 + 标题 + Page::draw() + 侧面板）
+    void draw() override;
 
     const tstring& getCSVPath() const;
     void setThemeButtonText(const tstring& text);
@@ -137,7 +135,7 @@ public:
               Callback onSortNameAsc, Callback onSortNameDesc,
               Callback onReset);
 
-    void draw() override;  // 自定义（背景 + 图表 + Page::draw() + 标题 + 统计）
+    void draw() override;
 
     void setChartData(ChartType type, const std::vector<ChartItem>& data,
                       const tstring& title, const ColorTheme& theme);

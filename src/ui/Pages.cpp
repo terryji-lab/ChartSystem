@@ -72,9 +72,10 @@ MainPage::MainPage(
     , btnTheme(50, 616, 260, 48, _T("Theme: Classic"),
           [this]{ m_onThemeSwitch(); }, 8)
 {
-    // 注册到基类容器（TextInput 是 Card 子类，放入 m_cards）
-    m_cards   = {&m_cardData, &m_cardChart, &m_cardActions, &m_cardInstr, &m_cardTips, &txtCSV};
-    m_buttons = {&btnReadCSV, &btnBarChart, &btnPieChart, &btnAreaChart,
+    // 注册到基类容器（Widget* 统一管理）
+    m_widgets = {&m_cardData, &m_cardChart, &m_cardActions, &m_cardInstr, &m_cardTips,
+                 &txtCSV,
+                 &btnReadCSV, &btnBarChart, &btnPieChart, &btnAreaChart,
                  &btnLineChart, &btnExport, &btnTheme};
 
     applyTheme(theme);
@@ -84,15 +85,23 @@ void MainPage::applyTheme(const ColorTheme& theme)
 {
     m_theme = theme;
 
-    for (auto* btn : m_buttons)
-    {
-        btn->setColorNormal(theme.btnNormal);
-        btn->setColorHover(theme.btnHover);
-        btn->setColorPress(theme.btnPress);
-    }
-
     COLORREF shadow = darkenColor(theme.bgColor, 40);
-    for (auto* c : m_cards) c->setColors(shadow, theme.cardColor, theme.accentColor);
+
+    for (auto* w : m_widgets)
+    {
+        // Button → 设置按钮三态配色
+        if (auto* btn = dynamic_cast<Button*>(w))
+        {
+            btn->setColorNormal(theme.btnNormal);
+            btn->setColorHover(theme.btnHover);
+            btn->setColorPress(theme.btnPress);
+        }
+        // Card（含 TextInput / DisplayBox）→ 设置卡片配色
+        if (auto* card = dynamic_cast<Card*>(w))
+        {
+            card->setColors(shadow, theme.cardColor, theme.accentColor);
+        }
+    }
 }
 
 void MainPage::draw()
@@ -206,8 +215,9 @@ ChartPage::ChartPage(const ColorTheme& theme,
     , m_chartTheme(theme)
     , m_hasData(false)
 {
-    m_cards   = {&m_cardTopBar, &m_cardStats};
-    m_buttons = {&btnExport, &btnReset, &btnSortNameAsc, &btnSortNameDesc, &btnSortAsc, &btnSortDesc, &btnBack};
+    m_widgets = {&m_cardTopBar, &m_cardStats,
+                 &btnExport, &btnReset, &btnSortNameAsc, &btnSortNameDesc,
+                 &btnSortAsc, &btnSortDesc, &btnBack};
 
     applyTheme(theme);
 }
@@ -217,11 +227,14 @@ void ChartPage::applyTheme(const ColorTheme& theme)
     m_theme = theme;
     m_chartTheme = theme;
 
-    for (auto* btn : m_buttons)
+    for (auto* w : m_widgets)
     {
-        btn->setColorNormal(theme.btnNormal);
-        btn->setColorHover(theme.btnHover);
-        btn->setColorPress(theme.btnPress);
+        if (auto* btn = dynamic_cast<Button*>(w))
+        {
+            btn->setColorNormal(theme.btnNormal);
+            btn->setColorHover(theme.btnHover);
+            btn->setColorPress(theme.btnPress);
+        }
     }
 
     m_cardTopBar.setColors(darkenColor(theme.bgColor, 30), theme.cardColor, theme.accentColor);

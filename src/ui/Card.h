@@ -2,61 +2,55 @@
 #include <easyx.h>
 #include <string>
 #include "../utils/RenderUtils.h"
+#include "Widget.h"
 #include "Button.h"
 
 typedef std::basic_string<TCHAR> tstring;
 
-// ==================== Card 基类 —— 圆角背景框 ====================
-class Card
+// ==================== Card —— 圆角背景框 ====================
+// 继承 Widget，提供统一的阴影 + 背景 + 标题绘制。
+// 子类可复用 drawShadow() / drawBody() / drawTitle() 组合自己的 draw()。
+class Card : public Widget
 {
-protected:
-    int m_x, m_y, m_w, m_h, m_radius;
-    tstring m_title;
-    COLORREF m_shadowColor;
-    COLORREF m_bgColor;
-    COLORREF m_titleColor;
-
 public:
     Card(int x, int y, int w, int h,
          const tstring& title = _T(""), int radius = 10);
-    virtual ~Card() = default;
 
-    virtual void draw() const;
-    bool contains(int mx, int my) const;
+    void draw() const override;
 
-    // 输入相关（默认空操作，TextInput 覆盖）
-    virtual bool handleMouseDown(int mx, int my) { return false; }
-    virtual void handleKeyDown(WPARAM vkcode)    {}
-    virtual void handleChar(WPARAM ch)           {}
-    virtual bool wantsKeyInput() const           { return false; }
-    virtual bool wantsCharInput() const          { return false; }
-
+    // ── 主题配色 ──
     void setColors(COLORREF shadow, COLORREF bg, COLORREF title);
     void setTitle(const tstring& t);
 
-    int x()      const { return m_x; }
-    int y()      const { return m_y; }
-    int width()  const { return m_w; }
-    int height() const { return m_h; }
+protected:
+    // ── 可拆分的绘制步骤，供子类（如 PopupCard）按需组合 ──
+    void drawShadow() const;
+    void drawBody() const;
+    void drawTitle() const;
+
+    int      m_radius;
+    tstring  m_title;
+    COLORREF m_shadowColor;
+    COLORREF m_bgColor;
+    COLORREF m_titleColor;
 };
 
 // ==================== DisplayBox —— 只读文本展示框 ====================
 class DisplayBox : public Card
 {
-private:
-    tstring m_text;
-
 public:
     DisplayBox(int x, int y, int w, int h,
                const tstring& title = _T(""), int radius = 6);
 
     void setText(const tstring& t);
     void draw() const override;
+
+private:
+    tstring m_text;
 };
 
 // ==================== PopupCard —— 模态弹窗 ====================
-// 继承 Card，封装弹窗的绘制与阻塞交互逻辑。
-// 复用 Button 作为确认按钮，支持 hover 高亮。
+// 继承 Card，复用 drawBody() 画背景，叠加 accent 色条、图标、文字和 OK 按钮。
 class PopupCard : public Card
 {
 public:
@@ -72,10 +66,10 @@ public:
     void showModal();
 
 private:
-    tstring m_message;
-    tstring m_detail;
+    tstring  m_message;
+    tstring  m_detail;
     COLORREF m_accentColor;
-    Button m_okBtn;
-    bool m_shouldClose;
-    bool m_isError;
+    Button   m_okBtn;
+    bool     m_shouldClose;
+    bool     m_isError;
 };

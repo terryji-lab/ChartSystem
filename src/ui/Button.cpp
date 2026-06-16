@@ -4,20 +4,19 @@
 // ==================== 构造 ====================
 Button::Button(int x, int y, int width, int height, const tstring& text,
                std::function<void()> onClick, int cornerRadius)
-    : m_x(x), m_y(y)
-    , m_width(width), m_height(height)
+    : Widget(x, y, width, height)
     , m_radius(cornerRadius)
     , m_text(text)
     , m_isHovered(false)
     , m_isPressed(false)
     , m_visible(true)
     , m_onClick(onClick)
-    , m_colorNormal(RGB(70, 130, 210))   // 现代蓝色
-    , m_colorHover(RGB(100, 160, 235))   // 悬停亮蓝
-    , m_colorPress(RGB(50, 100, 175))    // 按下深蓝
-    , m_colorBorder(RGB(50, 110, 190))   // 边框
-    , m_colorText(WHITE)                 // 白色文字
-    , m_colorShadow(RGB(180, 190, 210))  // 阴影
+    , m_colorNormal(RGB(70, 130, 210))
+    , m_colorHover(RGB(100, 160, 235))
+    , m_colorPress(RGB(50, 100, 175))
+    , m_colorBorder(RGB(50, 110, 190))
+    , m_colorText(WHITE)
+    , m_colorShadow(RGB(180, 190, 210))
 {
 }
 
@@ -25,8 +24,8 @@ Button::Button(int x, int y, int width, int height, const tstring& text,
 bool Button::contains(int mx, int my) const
 {
     return m_visible
-        && mx >= m_x && mx <= m_x + m_width
-        && my >= m_y && my <= m_y + m_height;
+        && mx >= m_x && mx <= m_x + m_w
+        && my >= m_y && my <= m_y + m_h;
 }
 
 bool Button::handleMouseMove(int mx, int my)
@@ -65,7 +64,6 @@ void Button::draw() const
 {
     if (!m_visible) return;
 
-    // 根据状态选择颜色
     COLORREF fillColor = m_colorNormal;
     if (m_isPressed)
         fillColor = m_colorPress;
@@ -75,34 +73,32 @@ void Button::draw() const
     // 1. 阴影（仅在普通/悬停状态绘制）
     if (!m_isPressed && m_radius > 0)
     {
-        int so = 3;  // 阴影偏移
-        drawRoundRectFill(m_x + so, m_y + so, m_width, m_height, m_radius, m_colorShadow);
+        int so = 3;
+        drawRoundRectFill(m_x + so, m_y + so, m_w, m_h, m_radius, m_colorShadow);
     }
 
     // 2. 按钮主体（圆角矩形）
-    drawRoundRectFill(m_x, m_y, m_width, m_height, m_radius, fillColor);
+    drawRoundRectFill(m_x, m_y, m_w, m_h, m_radius, fillColor);
 
-    // 3. 细线边框（直线部分 + 角弧线）
+    // 3. 细线边框
     setlinecolor(m_colorBorder);
     if (m_radius > 0)
     {
         int r = m_radius;
-        int x = m_x, y = m_y, w = m_width, h = m_height;
-        // 四条直边
-        line(x + r, y,         x + w - r, y);          // 上
-        line(x + r, y + h,     x + w - r, y + h);      // 下
-        line(x,     y + r,     x,         y + h - r);  // 左
-        line(x + w, y + r,     x + w,     y + h - r);  // 右
-        // 四角弧线 (EasyX arc 使用弧度, 逆时针)
+        int x = m_x, y = m_y, w = m_w, h = m_h;
+        line(x + r, y,         x + w - r, y);
+        line(x + r, y + h,     x + w - r, y + h);
+        line(x,     y + r,     x,         y + h - r);
+        line(x + w, y + r,     x + w,     y + h - r);
         const double PI = 3.141592653589793;
-        arc(x, y,                 x + r * 2, y + r * 2,     PI,       PI * 1.5); // 左上: π → 3π/2
-        arc(x + w - r * 2, y,     x + w,     y + r * 2,     PI * 1.5, PI * 2.0); // 右上: 3π/2 → 2π
-        arc(x + w - r * 2, y + h - r * 2, x + w, y + h,     0,        PI * 0.5); // 右下: 0 → π/2
-        arc(x,     y + h - r * 2, x + r * 2, y + h,         PI * 0.5, PI);       // 左下: π/2 → π
+        arc(x, y,                 x + r * 2, y + r * 2,     PI,       PI * 1.5);
+        arc(x + w - r * 2, y,     x + w,     y + r * 2,     PI * 1.5, PI * 2.0);
+        arc(x + w - r * 2, y + h - r * 2, x + w, y + h,     0,        PI * 0.5);
+        arc(x,     y + h - r * 2, x + r * 2, y + h,         PI * 0.5, PI);
     }
     else
     {
-        rectangle(m_x, m_y, m_x + m_width, m_y + m_height);
+        rectangle(m_x, m_y, m_x + m_w, m_y + m_h);
     }
 
     // 4. 文字（居中）
@@ -112,8 +108,8 @@ void Button::draw() const
 
     int tw = textwidth(m_text.c_str());
     int th = textheight(m_text.c_str());
-    int tx = m_x + (m_width - tw) / 2;
-    int ty = m_y + (m_height - th) / 2;
+    int tx = m_x + (m_w - tw) / 2;
+    int ty = m_y + (m_h - th) / 2;
     if (tx < m_x + 4) tx = m_x + 4;
     outtextxy(tx, ty, m_text.c_str());
 }
