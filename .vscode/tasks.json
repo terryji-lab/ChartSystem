@@ -4,12 +4,12 @@
     {
       "label": "build ChartSystem",
       "type": "shell",
-      "command": "D:\\codeblocks-20.03mingw-nosetup\\MinGW\\bin\\g++.exe",
+      "command": "E:\\mingw64\\bin\\g++.exe",
       "args": [
-        "-std=c++14",
+        "-std=c++17",
         "-g",
-        "-I",
-        "D:\\easyx4mingw_25.9.10\\include",
+        "-DUNICODE",
+        "-D_UNICODE",
         "-I",
         "${workspaceFolder}\\src",
         "${workspaceFolder}\\src\\main.cpp",
@@ -25,14 +25,10 @@
         "${workspaceFolder}\\src\\utils\\FileDataReader.cpp",
         "${workspaceFolder}\\src\\utils\\ImageExporter.cpp",
         "-L",
-        "D:\\easyx4mingw_25.9.10\\lib64",
-        "-leasyx",
+        "E:\\mingw64\\lib",
+        "-leasyxw",
         "-lgdi32",
         "-lole32",
-        "-loleaut32",
-        "-luuid",
-        "-lwinmm",
-        "-lmsimg32",
         "-o",
         "${workspaceFolder}\\main.exe"
       ],
@@ -43,7 +39,7 @@
       "problemMatcher": [
         "$gcc"
       ],
-      "detail": "使用 Code::Blocks MinGW + EasyX4MinGW 编译整个项目"
+      "detail": "mingw64 + EasyX Unicode 编译"
     },
     {
       "label": "run ChartSystem",
@@ -55,7 +51,7 @@
         "isDefault": true
       },
       "problemMatcher": [],
-      "detail": "先编译，再运行 main.exe"
+      "detail": "先编译，再运行"
     }
   ]
 }
