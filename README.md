@@ -2,19 +2,102 @@
 
 基于 **C++14** 和 **EasyX** 图形库的 Windows 桌面图表可视化工具。加载 CSV 数据，以柱状图、饼图、折线图、面积图四种形式呈现，支持数据排序、统计分析和 PNG 导出。
 
-## 快速开始
+## 编译配置
+
+### 环境要求
+
+| 组件 | 说明 |
+| ---- | ---- |
+| **MinGW-w64** | g++ ≥ 5.0，支持 C++14。推荐 [WinLibs](https://winlibs.com/) 或 [MSYS2](https://www.msys2.org/) 发行版 |
+| **EasyX for MinGW** | Windows 轻量图形库，需手动安装到 MinGW 目录（见下方） |
+| **Windows 7+** | EasyX 依赖 GDI32 等 Win32 API，仅支持 Windows |
+
+### 安装 EasyX for MinGW
+
+EasyX 官方提供 [EasyX_2022xxxx_mingw.zip](https://easyx.cn/download/easyx4mingw/) 离线包，安装步骤：
+
+1. 下载 `EasyX4MinGW_xxxxxxxx.zip` 并解压
+2. 将 `include/` 下的 `easyx.h`、`graphics.h` 复制到 MinGW 的 include 目录，例如：
+
+   ```text
+   <mingw>\x86_64-w64-mingw32\include\
+   ```
+
+3. 将 `lib/` 下的 `libeasyx.a` 复制到 MinGW 的 lib 目录，例如：
+
+   ```text
+   <mingw>\x86_64-w64-mingw32\lib\
+   ```
+
+> **验证安装**：在终端执行 `g++ -leasyx -dM -E - < nul 2>&1 | findstr easyx`，无报错即安装成功。
+
+### 命令行编译
+
+将 `<mingw>` 替换为你的 MinGW 安装路径，在项目根目录执行：
 
 ```bash
-# 编译（需要 MinGW-w64 + EasyX for MinGW）
-g++ -std=c++14 -Isrc \
-    src/main.cpp src/chart/*.cpp src/ui/*.cpp src/utils/*.cpp \
-    -o main.exe -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32
+# === 编译（Debug 模式，带调试符号） ===
+<mingw>\bin\g++ -std=c++14 -g -Isrc \
+    src/main.cpp \
+    src/chart/Chart.cpp \
+    src/chart/BarChart.cpp \
+    src/chart/PieChart.cpp \
+    src/chart/LineChart.cpp \
+    src/chart/AreaChart.cpp \
+    src/ui/Button.cpp \
+    src/ui/Card.cpp \
+    src/ui/TextInput.cpp \
+    src/ui/Pages.cpp \
+    src/ui/ExportPathDialog.cpp \
+    src/utils/FileDataReader.cpp \
+    src/utils/ImageExporter.cpp \
+    src/utils/FilePathUtils.cpp \
+    -o main.exe \
+    -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32
 
-# 运行
+# === 编译（Release 模式，优化体积和速度） ===
+<mingw>\bin\g++ -std=c++14 -O2 -s -Isrc \
+    src/main.cpp \
+    src/chart/Chart.cpp \
+    ...（源文件同上）...
+    -o main.exe \
+    -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32 -mwindows
+
+# === 运行 ===
 ./main.exe
 ```
 
-> 确保 EasyX 头文件和库已安装到 MinGW 的 include / lib 目录中（`easyx.h` 和 `libeasyx.a` 在 MinGW 搜索路径内即可）。也可用 VS Code 打开项目文件夹，`Ctrl+Shift+B` 编译运行。
+> **注意**：Windows 原生 cmd 不支持 `\` 换行，请将命令写为一行，或使用 Git Bash / PowerShell。
+
+#### 链接库说明
+
+| 库 | 用途 |
+| -- | ---- |
+| `-leasyx` | EasyX 图形库（窗口、绘图、双缓冲） |
+| `-lgdi32` | GDI32 — 底层图形设备接口，EasyX 依赖它完成像素级渲染 |
+| `-lole32` | COM 基础组件，EasyX 图像加载需要 |
+| `-loleaut32` | OLE Automation，配合 OLE32 使用 |
+| `-luuid` | UUID 生成，COM 组件依赖 |
+| `-lwinmm` | Windows 多媒体 API，EasyX 音频/计时相关 |
+| `-lmsimg32` | 透明位图 AlphaBlend，EasyX 图像混合依赖 |
+
+#### Debug vs Release
+
+| 模式 | 编译选项 | 产物 | 适用场景 |
+| ---- | -------- | ---- | -------- |
+| **Debug** | `-g` | `main.exe`（较大，含符号） | 开发调试，可用 GDB 断点 |
+| **Release** | `-O2 -s -mwindows` | `main.exe`（较小，去符号，无控制台窗口） | 分发使用 |
+
+### VS Code 编译（Ctrl+Shift+B）
+
+项目 `.vscode/tasks.json` 预置了两个任务：
+
+| 任务 | 快捷键 | 说明 |
+| ---- | ------ | ---- |
+| `build ChartSystem` | `Ctrl+Shift+B` | 编译生成 `main.exe` |
+| `run ChartSystem` | `Ctrl+Shift+B` → 选 run | 先编译再运行 |
+
+> **⚠️ 首次使用请修改路径**：`tasks.json` 和 `c_cpp_properties.json` 中 `compilerPath` 写死为 `E:/mingw64/bin/g++.exe`，请替换为你本机的 MinGW 安装路径。搜索 `E:/mingw64` 全局替换即可。
 
 ## 功能
 
