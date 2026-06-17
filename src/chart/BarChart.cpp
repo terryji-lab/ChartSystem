@@ -132,8 +132,9 @@ void BarChart::draw()
     if (maxValue <= 0)
     {
         settextcolor(RED);
-        settextstyle(24, 0, _T("Arial"));
-        outtextxy(leftX + 50, topY + 50, _T("Invalid data"));
+        settextstyle(40, 0, _T("Arial"));
+        int tw = textwidth(_T("Valid Data"));
+        outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("Valid Data"));
         return;
     }
 

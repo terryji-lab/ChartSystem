@@ -43,15 +43,23 @@ double PieChart::getTotal() const
 // ==================== 主绘制函数 ====================
 void PieChart::draw()
 {
-    double total = getTotal();
-
-    // 数据为空或总和为零时显示提示
-    if(data.empty() || total <= 0)
+    // 数据为空时显示提示
+    if(data.empty())
     {
         settextcolor(RED);
         settextstyle(40, 0, _T("Arial"));
         int tw = textwidth(_T("No Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("No Data"));
+        return;
+    }
+
+    double total = getTotal();
+    if(total <= 0)
+    {
+        settextcolor(RED);
+        settextstyle(40, 0, _T("Arial"));
+        int tw = textwidth(_T("Valid Data"));
+        outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("Valid Data"));
         return;
     }
 

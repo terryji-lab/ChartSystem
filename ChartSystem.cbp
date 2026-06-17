@@ -82,6 +82,14 @@
 		<Unit filename="src/ui/Card.cpp">
 			<Option compilerVar="CPP" />
 		</Unit>
+		<Unit filename="src/ui/DisplayBox.h" />
+		<Unit filename="src/ui/DisplayBox.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/ui/PopupCard.h" />
+		<Unit filename="src/ui/PopupCard.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
 		<Unit filename="src/ui/Button.h" />
 		<Unit filename="src/ui/Button.cpp">
 			<Option compilerVar="CPP" />
@@ -90,8 +98,25 @@
 		<Unit filename="src/ui/TextInput.cpp">
 			<Option compilerVar="CPP" />
 		</Unit>
-		<Unit filename="src/ui/Pages.h" />
-		<Unit filename="src/ui/Pages.cpp">
+		<Unit filename="src/ui/Page.h" />
+		<Unit filename="src/ui/MainPage.h" />
+		<Unit filename="src/ui/MainPage.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/ui/ChartPage.h" />
+		<Unit filename="src/ui/ChartPage.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/chart/ChartFactory.h" />
+		<Unit filename="src/chart/ChartFactory.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/common/Themes.h" />
+		<Unit filename="src/common/Themes.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/utils/AppUtils.h" />
+		<Unit filename="src/utils/AppUtils.cpp">
 			<Option compilerVar="CPP" />
 		</Unit>
 		<Unit filename="src/ui/ExportPathDialog.h" />

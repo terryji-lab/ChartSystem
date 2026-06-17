@@ -33,41 +33,21 @@ EasyX 官方提供 [EasyX_2022xxxx_mingw.zip](https://easyx.cn/download/easyx4mi
 
 ### 命令行编译
 
-将 `<mingw>` 替换为你的 MinGW 安装路径，在项目根目录执行：
+项目中提供了两个自动编译脚本（会自动查找 `src` 目录下所有的 C++ 文件）：
+- `build.bat` （Windows 传统批处理，双击或在 CMD 中运行）
+- `build.ps1` （Windows PowerShell 脚本，在 PowerShell 中运行）
+
+只需确保 g++ 已在 PATH 环境变量中，然后在项目根目录执行：
 
 ```bash
-# === 编译（Debug 模式，带调试符号） ===
-<mingw>\bin\g++ -std=c++14 -g -Isrc \
-    src/main.cpp \
-    src/chart/Chart.cpp \
-    src/chart/BarChart.cpp \
-    src/chart/PieChart.cpp \
-    src/chart/LineChart.cpp \
-    src/chart/AreaChart.cpp \
-    src/ui/Button.cpp \
-    src/ui/Card.cpp \
-    src/ui/TextInput.cpp \
-    src/ui/Pages.cpp \
-    src/ui/ExportPathDialog.cpp \
-    src/utils/FileDataReader.cpp \
-    src/utils/ImageExporter.cpp \
-    src/utils/FilePathUtils.cpp \
-    -o main.exe \
-    -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32
-
-# === 编译（Release 模式，优化体积和速度） ===
-<mingw>\bin\g++ -std=c++14 -O2 -s -Isrc \
-    src/main.cpp \
-    src/chart/Chart.cpp \
-    ...（源文件同上）...
-    -o main.exe \
-    -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32 -mwindows
+# === 编译 ===
+.\build.bat
+# 或者
+.\build.ps1
 
 # === 运行 ===
-./main.exe
+.\main.exe
 ```
-
-> **注意**：Windows 原生 cmd 不支持 `\` 换行，请将命令写为一行，或使用 Git Bash / PowerShell。
 
 #### 链接库说明
 
@@ -159,11 +139,13 @@ Shenzhen,680
 ```text
 ChartSystem/
 ├── src/
-│   ├── main.cpp                       # 入口：窗口、页面、事件循环
+│   ├── main.cpp                       # 入口：初始化、页面状态与事件循环
 │   ├── common/
-│   │   └── Types.h                    # 公共类型：tstring 统一定义
+│   │   ├── Types.h                    # 公共类型：tstring 统一定义
+│   │   └── Themes.h / .cpp            # 预设颜色主题
 │   ├── chart/
 │   │   ├── Chart.h / Chart.cpp        # 抽象基类 + ColorTheme + 颜色工具
+│   │   ├── ChartFactory.h / .cpp      # 工厂模式：根据类型创建图表实例
 │   │   ├── BarChart.h / .cpp          # 柱状图
 │   │   ├── PieChart.h / .cpp          # 饼图
 │   │   ├── LineChart.h / .cpp         # 折线图（含 PlotCoords 嵌套结构体）
@@ -171,11 +153,16 @@ ChartSystem/
 │   ├── ui/
 │   │   ├── Widget.h                   # 控件抽象基类
 │   │   ├── Button.h / .cpp            # 圆角按钮（悬停/按下/回调）
-│   │   ├── Card.h / .cpp              # Card 基类 + DisplayBox + PopupCard
-│   │   ├── TextInput.h / .cpp         # 文本输入框（继承 Card）
+│   │   ├── Card.h / .cpp              # Card 基类
+│   │   ├── DisplayBox.h / .cpp        # 文本展示框
+│   │   ├── PopupCard.h / .cpp         # 带交互按钮的模态弹窗
+│   │   ├── TextInput.h / .cpp         # 文本输入框
 │   │   ├── ExportPathDialog.h / .cpp  # 导出路径输入对话框
-│   │   └── Pages.h / .cpp             # Page 基类 + MainPage + ChartPage + createChart
+│   │   ├── Page.h                     # Page 基类接口
+│   │   ├── MainPage.h / .cpp          # 主页面逻辑与布局
+│   │   └── ChartPage.h / .cpp         # 图表页面逻辑与布局
 │   └── utils/
+│       ├── AppUtils.h / .cpp          # 应用层辅助函数（各种弹窗与杂项）
 │       ├── RenderUtils.h              # drawRoundRectFill()
 │       ├── FileDataReader.h / .cpp    # CSV 读取/解析
 │       ├── DataAnalyzer.h             # 统计 + 排序
@@ -275,6 +262,7 @@ std::unique_ptr<Chart> createChart(ChartType, title, data, theme);
 | `budget.csv` | 8 | 预算分类 |
 | `monthly.csv` | 12 | 月度收入 |
 | `large.csv` | ~110 | 区域数据（压力测试） |
+| `invalid_data.csv` | 5 | 包含非法零值和负数的数据 |
 
 ## License
 
